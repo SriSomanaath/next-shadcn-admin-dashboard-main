@@ -88,3 +88,11 @@
 .hide-accordion-icon .lucide-chevron-down {
   display: none;
 }
+@keyframes progress {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+.animate-progress {
+  animation: progress 3s linear forwards;
+}

@@ -45,7 +45,7 @@ export const sidebarItems: NavGroup[] = [
       },
       {
         title: "Lead Management",
-        path: "#",
+        path: "",
         icon: Receipt,
         subItems: [
           { title: "Manage Users", path: `${basePath}/manage-users` },
@@ -56,7 +56,7 @@ export const sidebarItems: NavGroup[] = [
       },
       {
         title: "UTM Analysis",
-        path: "#",
+        path: "",
         icon: Activity,
         subItems: [
           { title: "Utm tracker", path: `${basePath}/utm-tracker` },
@@ -67,7 +67,7 @@ export const sidebarItems: NavGroup[] = [
       },
       {
         title: "Messages",
-        path: "#",
+        path: "",
         icon: ScanSearch,
         subItems: [
           { title: "Webinar notifications", path: `${basePath}/webinar-notifications` },
@@ -83,12 +83,12 @@ export const sidebarItems: NavGroup[] = [
       //   subItems: [{ title: "Unauthorized", path: `${basePath}/auth/unauthorized` }],
       // },
       {
-        title: "Drafts",
-        path: `${basePath}/drafts`,
+        title: "Call audit",
+        path: `${basePath}/call-audit`,
         icon: File,
       },
       {
-        title: "Sent",
+        title: "Call suggestions",
         path: `${basePath}/sent`,
         icon: Send,
       },

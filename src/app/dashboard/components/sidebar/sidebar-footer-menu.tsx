@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { signOut } from "next-auth/react";
 
 export default function SidebarFooterMenu({
   user,
@@ -89,7 +90,7 @@ export default function SidebarFooterMenu({
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <LogOut />
-              Log out
+             <span onClick={() => signOut({ callbackUrl: "/auth/login" })}>Log out</span> 
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

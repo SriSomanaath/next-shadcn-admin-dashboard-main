@@ -41,7 +41,7 @@ export default function Layout({ children }: LayoutProps) {
               </Breadcrumb>
             </div>
           </header>
-          <div className="p-4 pt-0">{children}</div>
+          <div className="w-auto p-2 pt-0">{children}</div>
         </SidebarInset>
       </SidebarProvider>
     </main>

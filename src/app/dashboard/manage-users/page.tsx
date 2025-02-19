@@ -1,307 +1,220 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
+import { useMemo, useEffect } from "react";
 import {
   ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-  flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  getFilteredRowModel,
   useReactTable,
-  Table as ReactTable,
-} from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-
-const data: Payment[] = [
-  {
-    id: "m5gr84i9",
-    amount: 316,
-    status: "success",
-    email: "ken99@yahoo.com",
-  },
-  {
-    id: "3u1reuv4",
-    amount: 242,
-    status: "success",
-    email: "Abe45@gmail.com",
-  },
-  {
-    id: "derv1ws0",
-    amount: 837,
-    status: "processing",
-    email: "Monserrat44@gmail.com",
-  },
-  {
-    id: "5kma53ae",
-    amount: 874,
-    status: "success",
-    email: "Silas22@gmail.com",
-  },
-  {
-    id: "bhqecj4p",
-    amount: 721,
-    status: "failed",
-    email: "carmella@hotmail.com",
-  },
-]
-
-export type Payment = {
-  id: string
-  amount: number
-  status: "pending" | "processing" | "success" | "failed"
-  email: string
-}
-
-export const columns: ColumnDef<Payment>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
-    ),
-  },
-  {
-    accessorKey: "email",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Email
-          <ArrowUpDown />
-        </Button>
-      )
-    },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"))
-
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount)
-
-      return <div className="text-right font-medium">{formatted}</div>
-    },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
-    },
-  },
-]
+  SortingState,
+  ColumnFiltersState,
+} from "@tanstack/react-table";
+import { useDispatch } from "react-redux";
+import { setError, setLeads, setLoading } from "@/redux/slices/leadSlice";
+import { useGetLeadsQuery } from "@/redux/services/leadManagementServices";
+import Cookies from "js-cookie";
+import { useSidebar } from "@/components/ui/sidebar";
+import { getAllUsersForSheets } from "@/hooks/use-manage-sheets";
+import ManageUsersTable from "./ManageUsersTable";
+import TableColumns from "./DropdownColumn";
+import { LoaderCircle } from "lucide-react";
+const { DropdownColumn, renderTeamColumn, renderSheetsColumn } = TableColumns;
 
 export function Page() {
-    const [sorting, setSorting] = React.useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-    const [rowSelection, setRowSelection] = React.useState({});
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [columnVisibility, setColumnVisibility] = React.useState<Record<string, boolean>>({});
+  const [activeTab, setActiveTab] = React.useState("Administrator"); // Default tab
+  const { state } = useSidebar();
+  const [pageIndex, setPageIndex] = React.useState(0);
+  const dispatch = useDispatch();
+  const { data: manage_users, error: fetchError, isLoading } = useGetLeadsQuery();
+  const [updatedData, setUpdatedData] = React.useState();
+  const pageSize = 8; // Rows per page
+  const widthClass = state === "expanded"
+      ? "w-[calc(100vw-0.5rem)] lg:w-[calc(100vw-18rem)] md:w-[calc(100vw-17rem)] sm:w-[calc(100vw-1rem)] xs:w-[calc(100vw-1rem)]"
+      : "w-[calc(100vw)] lg:w-[calc(100vw-4rem)] md:w-[calc(100vw-4rem)] sm:w-[calc(100vw-1rem)] xs:w-[calc(100vw-1rem)]";
+  const COLUMN_COOKIE_KEY = "selectedColumns";
+  const storedColumns = Cookies.get(COLUMN_COOKIE_KEY)
+    ? JSON.parse(Cookies.get(COLUMN_COOKIE_KEY) || "[]")
+    : [];
+    const [isInitialRender, setIsInitialRender] = React.useState(true); // To track initial render
+    const [tableData, setTableData] = React.useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const usersDataResponse = await getAllUsersForSheets();
+        if (!manage_users?.data || !usersDataResponse) {
+          console.error("manage_users or usersDataResponse is not available");
+          return;
+        }
+        const usersData = usersDataResponse; 
+        let mergedUsers = JSON.parse(JSON.stringify(manage_users.data));
+    
+        // Iterate over the fetched data
+        Object.entries(usersData).forEach(([sheetName, roles]) => {
+          Object.entries(roles).forEach(([role, emailsSet]) => {
+            // Convert Set to Array if necessary
+            const emails = Array.isArray(emailsSet) ? emailsSet : Array.from(emailsSet);
+    
+            emails.forEach(email => {
+              if (mergedUsers[role] && mergedUsers[role][email]) {
+                if (!mergedUsers[role][email].hasOwnProperty("sheets")) {
+                  mergedUsers[role][email]["sheets"] = [];
+                }
+                mergedUsers[role][email]["sheets"].push(sheetName);
+              }
+            });
+          });
+        });
+        setUpdatedData(mergedUsers);
+        setIsInitialRender(false);
+      } catch (error) {
+        console.error("Error fetching users data:", error);
+      }
+    };
+    fetchUsers();
+  }, [manage_users]);
+
+  useEffect(() => {
+    if (isLoading) dispatch(setLoading());
+    if (fetchError) dispatch(setError(fetchError.toString()));
+    if (updatedData) {
+      dispatch(setLeads(updatedData));
+    }
+  }, [manage_users, fetchError, isLoading, dispatch, updatedData]);
+ 
+  const getTableData = () => {
+    if (activeTab === "All") {
+      return [
+        ...(Object.values(updatedData?.["Sales_Manager"] || [])),
+        ...(Object.values(updatedData?.["Administrator"] || [])),
+        ...(Object.values(updatedData?.["Sales_User"] || [])),
+        ...(Object.values(updatedData?.["Marketing_User"] || [])),
+      ];
+    }
+    return updatedData?.[activeTab] ? Object.values(updatedData[activeTab]) : [];
+  };
+
+  useEffect(() => { // Only update tableData when updatedData changes
+    if (!isInitialRender) {
+      const newTableData = getTableData();
+      setTableData(newTableData);
+    }
+  }, [updatedData, activeTab, isInitialRender]);
+
+  const determineColumnType = (key: string, value: any) => {
+    if (Array.isArray(value)) return "array";
+    if (typeof value === "boolean") return "checkbox";
+    if (typeof value === "object" && value !== null) {
+      return Object.values(value).every((v) => typeof v === "boolean") ? "dropdown" : "text";
+    }
+    return "text";
+  };
   
-    const table = useReactTable({
-      data,
-      columns,
-      onSortingChange: setSorting,
-      onColumnFiltersChange: setColumnFilters,
-      getCoreRowModel: getCoreRowModel(),
-      getPaginationRowModel: getPaginationRowModel(),
-      getSortedRowModel: getSortedRowModel(),
-      getFilteredRowModel: getFilteredRowModel(),
-      onColumnVisibilityChange: setColumnVisibility,
-      onRowSelectionChange: setRowSelection,
-      state: {
+  const columns = useMemo<ColumnDef<any>[]>(() => {
+    if (!tableData.length) return [];
+  
+    return Object.keys(tableData[0] ?? {}).map((key) => {
+      const columnType = determineColumnType(key, tableData[0][key]);
+      const headerLabel = key.replace("_", " ");
+  
+      if (columnType === "dropdown") {
+        return {
+          id: key,
+          header: headerLabel,
+          cell: ({ row }) => <DropdownColumn row={row} columnKey={key} />,
+        };
+      }
+
+      if (key === "TEAM") {
+        return { id: key, header: headerLabel, cell: ({ row }) => renderTeamColumn(row, key) };
+      }
+  
+      if (key === "sheets") {
+        return { id: key, header: headerLabel, cell: ({ row }) => renderSheetsColumn(row, key) };
+      }
+  
+      return { accessorKey: key, header: headerLabel };
+    });
+  }, [tableData]);
+  
+  const table = useReactTable({
+    data: tableData,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: useMemo(
+      () => ({
         sorting,
         columnFilters,
         columnVisibility,
         rowSelection,
-      },
-    });
-  
-    return (
-      <div className="w-full">
-        <div className="flex items-center py-4">
-          <Input
-            placeholder="Filter emails..."
-            value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("email")?.setFilterValue(event.target.value)
+        pagination: { pageIndex, pageSize },
+      }),
+      [sorting, columnFilters, columnVisibility, rowSelection, pageIndex, pageSize]
+    ),
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+  });
+
+  useEffect(() => {
+    if (storedColumns.length > 0) {
+      setColumnVisibility((prev) => {
+        const updatedVisibility = { ...prev };
+        let hasChanges = false;
+
+        table.getAllColumns().forEach((column) => {
+          if (column.getCanHide()) {
+            const newValue = storedColumns.includes(column.id);
+            if (updatedVisibility[column.id] !== newValue) {
+              updatedVisibility[column.id] = newValue;
+              hasChanges = true;
             }
-            className="max-w-sm"
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="flex-1 text-sm text-muted-foreground">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
-          <div className="space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  export default Page;
-  
+          }
+        });
+        return hasChanges ? updatedVisibility : prev;
+      });
+    }
+  }, [table, storedColumns]);
+
+  const handleColumnChange = (columnId: string, value: boolean) => {
+    setColumnVisibility((prev) => {
+      const updatedVisibility = { ...prev, [columnId]: value };
+      const selectedColumns = Object.keys(updatedVisibility).filter(
+        (key) => updatedVisibility[key]
+      );
+      Cookies.set(COLUMN_COOKIE_KEY, JSON.stringify(selectedColumns), {
+        expires: 7,
+      });
+      return updatedVisibility;
+    });
+  };
+
+  return isLoading ? (
+    <div className="flex justify-center items-center h-full">
+      <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+    </div>
+  ) : (
+    <ManageUsersTable
+      table={table}
+      manage_users={manage_users}
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      handleColumnChange={handleColumnChange}
+      setPageIndex={setPageIndex}
+      isLoading={isLoading} 
+    />
+  );
+}
+
+export default Page;

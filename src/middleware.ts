@@ -1,17 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { withAuth } from "next-auth/middleware";
 
-import { authMiddleware } from "./middleware/auth-middleware";
-
-export function middleware(req: NextRequest) {
-  // authMiddleware
-  // const response = authMiddleware(req)
-  // if (response) {
-  //   return response
-  // }
-
-  return NextResponse.next();
-}
+export default withAuth({
+  pages: {
+    signIn: "/auth/login", // Redirect unauthenticated users to this page
+  },
+});
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/auth/login"],
+  matcher: ["/dashboard/:path*", "/"],
 };

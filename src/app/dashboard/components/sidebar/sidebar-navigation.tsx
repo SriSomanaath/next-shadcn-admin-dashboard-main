@@ -14,6 +14,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { NavGroup } from "@/navigation/sidebar/sidebar-items";
+import Link from "next/link";
 
 export default function SidebarNavigation({ sidebarItems }: { readonly sidebarItems: NavGroup[] }) {
   return (
@@ -28,7 +29,7 @@ export default function SidebarNavigation({ sidebarItems }: { readonly sidebarIt
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton tooltip={item.title}>
                       {item.icon && <item.icon />}
-                      <span>{item.title}</span>
+                      {item.path?(<Link href={item.path}>{item.title}</Link>):(<span>{item.title}</span>)}
                       {item.subItems && (
                         <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                       )}
