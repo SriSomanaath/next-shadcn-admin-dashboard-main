@@ -7,7 +7,7 @@ import UtmChart from "@/components/utmChart";
 import { useState } from "react";
 import { SelectedParamsData } from "@/types/utmType";
 
-export default function Component() {
+const Page = () => {
   const [params, setParamsData] = useState<SelectedParamsData>({
     dates: [],
     tables_and_pages: {},
@@ -56,3 +56,5 @@ export default function Component() {
     </div>
   );
 }
+
+export default Page;

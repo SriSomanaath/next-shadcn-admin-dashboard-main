@@ -24,9 +24,15 @@ export const leadManagementApi = createApi({
   endpoints: (builder) => ({
     getLeads: builder.query<LeadData, void>({
       query: () => {
-        // Don't need to specify the full path, just the endpoint
         return 'manage_users';
       },
+    }),
+    postlead: builder.mutation({
+      query: ({userData}) => ({
+        url: `manage_users_v2`,
+        method: 'POST',
+        body: userData,
+      })
     }),
     getSheetNames: builder.query({
       query: () => "/get_sheet_names"
@@ -34,7 +40,20 @@ export const leadManagementApi = createApi({
     getUsersForSheet: builder.query<{ data: any }, string>({
       query: (sheetName) => `/sheet_management?sheet_name=${encodeURIComponent(sheetName)}`,
     }),
+    postSheetsUser: builder.mutation({
+      query: ({ sheetName, userData }) => ({
+        url: `sheet_management?sheet_name=${encodeURIComponent(sheetName)}`,
+        method: 'POST',
+        body: userData,
+      })
+    }),
+    refreshUsers: builder.mutation({
+      query: () => ({
+        url: "/refresh",
+        method: 'PUT',
+      })
+    }),
   }),
 });
 
-export const { useGetLeadsQuery, useGetSheetNamesQuery, useGetUsersForSheetQuery } = leadManagementApi;
+export const { useGetLeadsQuery, usePostleadMutation, useGetSheetNamesQuery, useGetUsersForSheetQuery, usePostSheetsUserMutation, useRefreshUsersMutation } = leadManagementApi;

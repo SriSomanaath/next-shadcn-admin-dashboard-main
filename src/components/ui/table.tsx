@@ -89,7 +89,7 @@ const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cn(
-      "p-2 align-middle",
+      "p-2 align-middle overflow-hidden",
       borderCols && "border-r border-gray-200 last:border-r-0",
       className
     )}

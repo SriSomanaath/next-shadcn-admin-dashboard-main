@@ -130,9 +130,6 @@ const SidebarDropdowns: React.FC<SidebarDropdownsProps> = ({ params, handleSubmi
         </div>
       ));
     }
-
-    // console.log("DBG:renderDropDown", key)
-  
     return (
       <DropdownMenu onOpenChange={(open) => setOpenDropdown(open ? (key as string) : null)}>
         <DropdownMenuTrigger asChild>

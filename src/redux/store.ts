@@ -5,6 +5,7 @@ import { leadManagementApi } from "./services/leadManagementServices";
 import { urmTrackerServiceApi } from "./services/utmTrackerServices";
 import { MessagesApi } from "./services/MessagesServices";
 import { leadqaApi } from "./services/leadqaServices";
+import leadqaReducer from "@/redux/slices/leadqaSlice"; 
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     utm: utmReducer,
     [MessagesApi.reducerPath]: MessagesApi.reducer,
     [leadqaApi.reducerPath]: leadqaApi.reducer,
+    leadqa: leadqaReducer,
     [leadManagementApi.reducerPath]: leadManagementApi.reducer,
     [urmTrackerServiceApi.reducerPath]: urmTrackerServiceApi.reducer,
   },

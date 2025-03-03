@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -9,7 +6,7 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { flexRender } from "@tanstack/react-table";
 import PaginationComponent from "@/components/pagination-user";
 import { useSidebar } from "@/components/ui/sidebar";
-import { User, Phone, ShieldCheck, IdCard, Briefcase, Mail, Users, LayoutGrid, ChevronDown, ArrowUpDown, Settings, Group, LoaderCircle } from "lucide-react";
+import { User, Phone, Layers, ShieldCheck, IdCard, Briefcase, Mail, Users, Globe, ChevronDown, ArrowUpDown, Settings, Group, LoaderCircle } from "lucide-react";
 
 interface ManageUsersTableProps {
   table: any;
@@ -22,17 +19,19 @@ interface ManageUsersTableProps {
 }
 
 const columnIcons: any = {
-    ASSIGNMENT_STATUS: <div className="w-5 h-5 flex items-center justify-center bg-white text-gray-500"><Group className="w-3 h-3" /></div>,
-    AssociatedPhoneNumbers: <div className="w-5 h-5 flex items-center justify-center"><Phone className="w-3 h-3" /></div>,
-    ELIGIBLE_GROUPS_PROFESSIONAL: <div className="w-5 h-5 flex items-center justify-center"><ShieldCheck className="w-3 h-3" /></div>,
-    ELIGIBLE_GROUPS_STUDENT: <div className="w-5 h-5 flex items-center justify-center"><Group className="w-3 h-3" /></div>,
-    FirstName: <div className="w-5 h-5 flex items-center justify-center"><User className="w-3 h-3" /></div>,
-    ID: <div className="w-5 h-5 flex items-center justify-center"><IdCard className="w-3 h-3" /></div>,
-    LastName: <div className="w-5 h-5 flex items-center justify-center"><User className="w-3 h-3" /></div>,
-    Role: <div className="w-5 h-5 flex items-center justify-center"><Briefcase className="w-3 h-3" /></div>,
-    SlackEmail: <div className="w-5 h-5 flex items-center justify-center"><Mail className="w-3 h-3" /></div>,
-    SlackUser: <div className="w-5 h-5 flex items-center justify-center"><Users className="w-3 h-3" /></div>,
-    TEAM: <div className="w-5 h-5 flex items-center justify-center"><LayoutGrid className="w-3 h-3" /></div>
+    ASSIGNMENT_STATUS: <div className="w-5 h-5 flex items-center justify-center bg-white text-gray-500 "><Group className="w-3.5 h-3.5 text-[#1e1e1e]" /></div>,
+    AssociatedPhoneNumbers: <div className="w-5 h-5 flex items-center justify-center"><Phone className="w-3.5 h-3.5 text-[#138dff]" /></div>,
+    ELIGIBLE_GROUPS_PROFESSIONAL: <div className="w-5 h-5 flex items-center justify-center"><ShieldCheck className="w-3.5 h-3.5 text-[#1e1e1e]" /></div>,
+    ELIGIBLE_GROUPS_STUDENT: <div className="w-5 h-5 flex items-center justify-center"><Group className="w-3.5 h-3.5 text-[#1e1e1e]" /></div>,
+    FirstName: <div className="w-5 h-5 flex items-center justify-center"><User className="w-3.5 h-3.5 text-[#1e1e1e]" /></div>,
+    ID: <div className="w-5 h-5 flex items-center justify-center"><IdCard className="w-3.5 h-3.5 text-[#1e1e1e]" /></div>,
+    LastName: <div className="w-5 h-5 flex items-center justify-center"><User className="w-3.5 h-3.5 text-[#1e1e1e]" /></div>,
+    Role: <div className="w-5 h-5 flex items-center justify-center"><Briefcase className="w-3.5 h-3.5 text-[#1e1e1e]" /></div>,
+    SlackEmail: <div className="w-5 h-5 flex items-center justify-center"><Mail className="w-3.5 h-3.5 text-[#1e1e1e]" /></div>,
+    SlackUser: <div className="w-5 h-5 flex items-center justify-center"><Users className="w-3.5 h-3.5 text-[#1e1e1e]" /></div>,
+    TEAM: <div className="w-5 h-5 flex items-center justify-center"><Globe className="w-3.5 h-3.5 text-[#4e02c4]" /></div>,
+    sheets: <div className="w-5 h-5 flex items-center justify-center"><Layers className="w-3.5 h-3.5 text-[#2ab0cb]" /></div>,
+    mail_id: <div className="w-5 h-5 flex items-center justify-center"><Mail className="w-3.5 h-3.5 text-[#00606d]" /></div>,
   };
 
 const ManageUsersTable = ({
@@ -46,7 +45,7 @@ const ManageUsersTable = ({
 }: ManageUsersTableProps) => {
 const { state } = useSidebar();
 const widthClass = state === "expanded"
-    ? "w-[calc(100vw-0.5rem)] lg:w-[calc(100vw-18rem)] md:w-[calc(100vw-17rem)] sm:w-[calc(100vw-1rem)] xs:w-[calc(100vw-1rem)]"
+    ? "w-[calc(100vw-0.5rem)] lg:w-[calc(100vw-15rem)] md:w-[calc(100vw-15rem)] sm:w-[calc(100vw-1rem)] xs:w-[calc(100vw-1rem)]"
     : "w-[calc(100vw)] lg:w-[calc(100vw-4rem)] md:w-[calc(100vw-4rem)] sm:w-[calc(100vw-1rem)] xs:w-[calc(100vw-1rem)]";
 
   return (
@@ -56,7 +55,7 @@ const widthClass = state === "expanded"
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
         </div>
       ) : (
-        <div className={`${widthClass} overflow-y-auto`}>
+        <div className={`${widthClass} overflow-y-auto `}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
           <TabsList>
             <TabsTrigger value="All">All</TabsTrigger>
@@ -113,7 +112,7 @@ const widthClass = state === "expanded"
                       const icon = columnIcons[header.column.id];
                       return (
                         <TableHead borderCols key={header.id} onClick={header.column.getToggleSortingHandler()}>
-                          <div className="flex cursor-pointer items-center gap-1 whitespace-nowrap text-[#1e1e1e]">
+                          <div className="flex cursor-pointer items-center gap-1 whitespace-nowrap text-[#818181]">
                             {icon || <span className="text-red-500"></span>}
                             {flexRender(header.column.columnDef.header, header.getContext())}
                             {header.column.getIsSorted() ? (header.column.getIsSorted() === "desc" ? " 🔽" : " 🔼") : ""}
@@ -175,7 +174,6 @@ const widthClass = state === "expanded"
       </div>
       )}
     </div>
-
   );
 };
 

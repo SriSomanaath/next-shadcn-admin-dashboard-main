@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import {
   ColumnDef,
   getCoreRowModel,
@@ -14,55 +14,116 @@ import {
 } from "@tanstack/react-table";
 import { useDispatch } from "react-redux";
 import { setError, setLeads, setLoading } from "@/redux/slices/leadSlice";
-import { useGetLeadsQuery } from "@/redux/services/leadManagementServices";
+import { useGetLeadsQuery, usePostleadMutation, usePostSheetsUserMutation } from "@/redux/services/leadManagementServices";
 import Cookies from "js-cookie";
-import { useSidebar } from "@/components/ui/sidebar";
-import { getAllUsersForSheets } from "@/hooks/use-manage-sheets";
+import { getAllUsersForSheets_v2 } from "@/hooks/use-manage-sheets";
 import ManageUsersTable from "./ManageUsersTable";
 import TableColumns from "./DropdownColumn";
-import { LoaderCircle } from "lucide-react";
-const { DropdownColumn, renderTeamColumn, renderSheetsColumn } = TableColumns;
+import { CheckCircle2, XCircle } from "lucide-react";
 
-export function Page() {
+interface AlertProps {
+  variant: "destructive" | "default";
+  alert: { type: "success" | "error"; message: string };
+  lastAction?: boolean;
+  handleUndo?: () => void;
+}
+
+const Alert: React.FC<AlertProps> = ({ variant, alert, lastAction, handleUndo }) => {
+  return (
+    <div className="fixed rounded-xl bottom-4 right-4 z-50">
+      <div className={`relative flex items-center gap-4 rounded p-4 border ${variant === "destructive" ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-50"}`}>
+        {alert.type === "success" ? (
+          <CheckCircle2 className="h-5 w-5 text-green-500" />
+        ) : (
+          <XCircle className="h-5 w-5 text-red-500" />
+        )}
+        <div className="flex-1">
+          <div className="text-sm font-semibold">{alert.type === "success" ? "Success" : "Error"}</div>
+          <div className="text-xs text-muted-foreground">{alert.message}</div>
+        </div>
+        {/* {lastAction && (
+          <button
+            className="ml-2 text-blue-500 underline hover:text-blue-700"
+            onClick={handleUndo}
+          >
+            Undo
+          </button>
+        )} */}
+        {/* Progress bar */}
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-300">
+          <div className="h-full bg-blue-500 animate-progress"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Page = () => {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = React.useState("Administrator"); // Default tab
-  const { state } = useSidebar();
+  const [activeTab, setActiveTab] = React.useState("All");
   const [pageIndex, setPageIndex] = React.useState(0);
   const dispatch = useDispatch();
   const { data: manage_users, error: fetchError, isLoading } = useGetLeadsQuery();
-  const [updatedData, setUpdatedData] = React.useState();
+  const [postLead, { isLoading: isPostingLead }] = usePostleadMutation();
+  const [postSheetUser, { isLoading: isPostingSheetUser }] = usePostSheetsUserMutation();  
+  const [updatedData, setUpdatedData] = React.useState<any>();
   const pageSize = 8; // Rows per page
-  const widthClass = state === "expanded"
-      ? "w-[calc(100vw-0.5rem)] lg:w-[calc(100vw-18rem)] md:w-[calc(100vw-17rem)] sm:w-[calc(100vw-1rem)] xs:w-[calc(100vw-1rem)]"
-      : "w-[calc(100vw)] lg:w-[calc(100vw-4rem)] md:w-[calc(100vw-4rem)] sm:w-[calc(100vw-1rem)] xs:w-[calc(100vw-1rem)]";
   const COLUMN_COOKIE_KEY = "selectedColumns";
   const storedColumns = Cookies.get(COLUMN_COOKIE_KEY)
     ? JSON.parse(Cookies.get(COLUMN_COOKIE_KEY) || "[]")
     : [];
-    const [isInitialRender, setIsInitialRender] = React.useState(true); // To track initial render
-    const [tableData, setTableData] = React.useState<any[]>([]);
+  const [isInitialRender, setIsInitialRender] = React.useState(true);
+  const [tableData, setTableData] = React.useState<any[]>([]);
+  const { SelectColumn, DropdownColumn, renderTeamColumn, renderSheetsColumn, InputColumn } = TableColumns;
+
+  // Alert state
+  const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  // Optional: if you want to allow undo action
+  const [lastAction, setLastAction] = useState(false);
+  const handleUndo = () => {
+    // Implement undo functionality if needed
+    console.log("Undo action triggered");
+    setLastAction(false);
+  };
+
+  // Helper to trigger an alert
+  const onAlert = (data: { type: "success" | "error"; message: string }) => {
+    setAlert(data);
+    // Optionally, set lastAction true for success alerts (if you want undo)
+    if (data.type === "success") {
+      setLastAction(true);
+    }
+    // Auto-dismiss after a few seconds if desired:
+    setTimeout(() => setAlert(null), 5000);
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const usersDataResponse = await getAllUsersForSheets();
+        const usersDataResponse = await getAllUsersForSheets_v2();
+        console.log("sheetNamev2sheetNamev2", usersDataResponse);
         if (!manage_users?.data || !usersDataResponse) {
           console.error("manage_users or usersDataResponse is not available");
           return;
         }
-        const usersData = usersDataResponse; 
+        const usersData = usersDataResponse;
         let mergedUsers = JSON.parse(JSON.stringify(manage_users.data));
-    
-        // Iterate over the fetched data
+
+        Object.entries(mergedUsers).forEach(([role, users]) => {
+          Object.entries(users as Record<string, any>).forEach(([email, userData]) => {
+            if (typeof userData === "object" && userData !== null) {
+              userData["mail_id"] = email;
+            }
+          });
+        });
+
         Object.entries(usersData).forEach(([sheetName, roles]) => {
           Object.entries(roles).forEach(([role, emailsSet]) => {
-            // Convert Set to Array if necessary
             const emails = Array.isArray(emailsSet) ? emailsSet : Array.from(emailsSet);
-    
-            emails.forEach(email => {
+            emails.forEach((email) => {
               if (mergedUsers[role] && mergedUsers[role][email]) {
                 if (!mergedUsers[role][email].hasOwnProperty("sheets")) {
                   mergedUsers[role][email]["sheets"] = [];
@@ -73,6 +134,7 @@ export function Page() {
           });
         });
         setUpdatedData(mergedUsers);
+        console.log("manage_usersCheck", mergedUsers);
         setIsInitialRender(false);
       } catch (error) {
         console.error("Error fetching users data:", error);
@@ -88,7 +150,7 @@ export function Page() {
       dispatch(setLeads(updatedData));
     }
   }, [manage_users, fetchError, isLoading, dispatch, updatedData]);
- 
+
   const getTableData = () => {
     if (activeTab === "All") {
       return [
@@ -101,7 +163,7 @@ export function Page() {
     return updatedData?.[activeTab] ? Object.values(updatedData[activeTab]) : [];
   };
 
-  useEffect(() => { // Only update tableData when updatedData changes
+  useEffect(() => {
     if (!isInitialRender) {
       const newTableData = getTableData();
       setTableData(newTableData);
@@ -116,34 +178,64 @@ export function Page() {
     }
     return "text";
   };
-  
+
   const columns = useMemo<ColumnDef<any>[]>(() => {
     if (!tableData.length) return [];
-  
+
     return Object.keys(tableData[0] ?? {}).map((key) => {
       const columnType = determineColumnType(key, tableData[0][key]);
       const headerLabel = key.replace("_", " ");
-  
+
+      if (key === "ASSIGNMENT_STATUS") {
+        return {
+          id: key,
+          header: headerLabel,
+          cell: ({ row }) => (
+            <SelectColumn row={row} columnKey={key} handleSubmitChanges={handleSubmitChangesWrapper} isLoading={isPostingLead}/>
+          ),
+        };
+      }
+
       if (columnType === "dropdown") {
         return {
           id: key,
           header: headerLabel,
-          cell: ({ row }) => <DropdownColumn row={row} columnKey={key} />,
+          cell: ({ row }) => (
+            <DropdownColumn row={row} columnKey={key} handleSubmitChanges={handleSubmitChangesWrapper} isLoading={isPostingLead}/>
+          ),
         };
       }
 
       if (key === "TEAM") {
-        return { id: key, header: headerLabel, cell: ({ row }) => renderTeamColumn(row, key) };
+        return {
+          id: key,
+          header: headerLabel,
+          cell: ({ row }) => (
+            <SelectColumn row={row} columnKey={key} handleSubmitChanges={handleSubmitChangesWrapper} isLoading={isPostingLead}/>
+          ),
+        };
       }
-  
+
       if (key === "sheets") {
-        return { id: key, header: headerLabel, cell: ({ row }) => renderSheetsColumn(row, key) };
+        return {
+          id: key,
+          header: headerLabel,
+          cell: ({ row }) => renderSheetsColumn(row, key, handleSubmitChangesWrapper, isPostingSheetUser) 
+        };
       }
-  
+
+      if (key === "SlackEmail" || key === "SlackUser") {
+        return {
+          accessorKey: key,
+          header: headerLabel,
+          cell: ({ row }) => <InputColumn row={row} columnKey={key} handleSubmitChanges={handleSubmitChangesWrapper} isLoading={isPostingLead}/>,
+        };
+      }      
+
       return { accessorKey: key, header: headerLabel };
     });
   }, [tableData]);
-  
+
   const table = useReactTable({
     data: tableData,
     columns,
@@ -172,7 +264,6 @@ export function Page() {
       setColumnVisibility((prev) => {
         const updatedVisibility = { ...prev };
         let hasChanges = false;
-
         table.getAllColumns().forEach((column) => {
           if (column.getCanHide()) {
             const newValue = storedColumns.includes(column.id);
@@ -200,20 +291,52 @@ export function Page() {
     });
   };
 
-  return isLoading ? (
-    <div className="flex justify-center items-center h-full">
-      <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-    </div>
-  ) : (
-    <ManageUsersTable
-      table={table}
-      manage_users={manage_users}
-      activeTab={activeTab}
-      setActiveTab={setActiveTab}
-      handleColumnChange={handleColumnChange}
-      setPageIndex={setPageIndex}
-      isLoading={isLoading} 
-    />
+  const handleSubmitChangesWrapper = async (mail: string, updatedColumnData: any, sheetData: boolean = false) => {
+    try {
+      if (sheetData) {
+        const payload = {
+          sheetName: updatedColumnData["sheet"],
+          userData: JSON.stringify({ [mail]: { "ACTIVE_STATUS": true } }),
+        };
+        console.log(`Updated Data for ${mail}:`, payload);
+        await postSheetUser(payload);
+        onAlert({
+          type: "success",
+          message: `Updated data for ${mail}`,
+        });
+        return;
+      }
+      const payload = { [mail]: { ...updatedColumnData } };
+
+      await postLead({ userData: payload });
+
+      onAlert({
+        type: "success",
+        message: `Updated data for ${mail}`,
+      });
+
+      console.log(`Updated Data for ${mail}:`, payload);
+    } catch (error) {
+      onAlert({
+        type: "error",
+        message: "There was an error updating the data.",
+      });
+      console.error("Error updating data:", error);
+    }
+  };
+
+  return (
+    <>
+      {alert && (
+        <Alert
+          variant={alert.type === "error" ? "destructive" : "default"}
+          alert={alert}
+          lastAction={lastAction}
+          handleUndo={handleUndo}
+        />
+      )}
+      <ManageUsersTable table={table} manage_users={manage_users} activeTab={activeTab} setActiveTab={setActiveTab} handleColumnChange={handleColumnChange} setPageIndex={setPageIndex} isLoading={isLoading} />
+    </>
   );
 }
 

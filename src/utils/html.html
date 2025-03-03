@@ -1,0 +1,351 @@
+<?php
+/**
+ * The template for displaying the header
+ *
+ * This is the template that displays all of the <head> section, opens the <body> tag and adds the site's header.
+ *
+ * @package HelloElementor
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
+
+$viewport_content = apply_filters( 'hello_elementor_viewport_content', 'width=device-width, initial-scale=1' );
+$enable_skip_link = apply_filters( 'hello_elementor_enable_skip_link', true );
+$skip_link_url = apply_filters( 'hello_elementor_skip_link_url', '#content' );
+?>
+<!doctype html>
+<html <?php language_attributes(); ?>><head>
+    <meta charset="<?php bloginfo( 'charset' ); ?>">
+    <meta name="viewport" content="<?php echo esc_attr( $viewport_content ); ?>">
+    <link rel="profile" href="https://gmpg.org/xfn/11">
+<link rel="icon" href="../favicon.ico" type="image/x-icon" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" rel="stylesheet"/>
+    <link rel="shortcut icon" href="https://opencv.org/university/wp-content/uploads/sites/4/2024/07/favicon-32x32-1.png" type="image/png" />
+	<!---<script src="https://code.jquery.com/jquery-3.7.1.min.js" async></script>    
+	<script async>
+        function getMidnightAfterTwoDays() {
+            let now = new Date();
+            let expiryDate = new Date();
+            expiryDate.setDate(now.getDate() + 2); // +2 days
+            expiryDate.setHours(23, 59, 59, 999); // Midnight of that day
+            return expiryDate.getTime();
+        }
+
+        function setCookie(name, value, expires) {
+            document.cookie = `${name}=${value}; expires=${new Date(expires).toUTCString()}; path=/`;
+            localStorage.setItem(name, value);
+        }
+
+        function getCookie(name) {
+            let match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? match[2] : localStorage.getItem(name);
+        }
+
+        function removeClass() {
+            document.body.classList.remove("pytorch");
+            document.cookie = "pytorch=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            localStorage.removeItem("pytorch");
+            localStorage.removeItem("pytorch_expiry");
+            document.getElementById("timer").textContent = "Class expired!";
+        }
+
+        function startTimer(expiryTime) {
+            function updateTimer() {
+                let now = new Date().getTime();
+                let remaining = expiryTime - now;
+                
+                if (remaining <= 0) {
+                    removeClass();
+                    return;
+                }
+
+                let days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+                let hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                let minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                let seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+                document.getElementById("timer").textContent = 
+                    ` ${days}d ${hours}h ${minutes}m ${seconds}s`;
+                setTimeout(updateTimer, 1000);
+            }
+            updateTimer();
+        }
+
+        function hasUTMSource(source) {
+            let urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get("utm_source") === source;
+        }
+
+        window.onload = function () {
+            let expiryTime = parseInt(getCookie("pytorch_expiry"), 10);
+            let pytorchTriggered = getCookie("pytorch");
+
+            if (hasUTMSource("pytorch") || pytorchTriggered === "true") {
+                if (!expiryTime || new Date().getTime() > expiryTime) {
+                    expiryTime = getMidnightAfterTwoDays();
+                    setCookie("pytorch", "true", expiryTime);
+                    setCookie("pytorch_expiry", expiryTime, expiryTime);
+                }
+
+                document.body.classList.add("pytorch");
+                startTimer(expiryTime);
+            }
+        };
+    </script>
+<div id="timer-div" style="
+    background: linear-gradient(to right, #f16262, #3200ff) !important;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: 999;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    margin: 0;
+   
+    justify-content: center;
+    gap: 15px;
+    align-items: center;
+													     flex-wrap: wrap;
+													 display:none;
+">Free PyTorch Bootcamp Launch Offer - 40% Discount on all AI Courses and Programs valid for 
+	<p id="timer" style="margin: 0;font-weight: 600;background: #000;padding: 5px 15px;border-radius: 5px;"></p> <a href="https://opencv.org/university/pytorch-thank-you" class="btn" style="color:#fff;margin: 0;text-transform: uppercase;font-weight: 600;background: #000;padding: 5px 15px;border-radius: 5px;">Enroll Now</a></div>
+<style>.pytorch #timer-div {display:flex !important}</style>-->
+  <script async>
+document.addEventListener("DOMContentLoaded", function() {
+    function setCookie(name, value, days) {
+        const date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/; Secure; SameSite=Lax`;
+    }
+
+    function getCookie(name) {
+        return document.cookie.split('; ').find(row => row.startsWith(name + '='))?.split('=')[1] || '';
+    }
+
+    function addClassAndSetCookie(className, cookieName) {
+        if (!document.body.classList.contains(className)) {
+            document.body.classList.add(className);
+            setCookie(cookieName, 'true', 30);
+        }
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const utmSource = (urlParams.get('utm_source') || '').toLowerCase();
+
+    // ✅ Always add the "corporate" class if utm_source=affiliate or corporate
+    if (utmSource === 'corporate' || utmSource === 'affiliate' || getCookie('corporateClassAdded') === 'true') {
+        addClassAndSetCookie('corporate', 'corporateClassAdded');
+    }
+
+    // ✅ Add the "affiliate" class only if utm_source=affiliate
+    if (utmSource === 'affiliate' || getCookie('affiliateClassAdded') === 'true') {
+        addClassAndSetCookie('affiliate', 'affiliateClassAdded');
+    }
+});
+</script>
+
+<script async>
+	document.addEventListener("DOMContentLoaded", function() {
+  if (document.body.classList.contains("corporate") && !document.body.classList.contains("page-id-19055")) {
+    // Get all links on the page
+    const links = document.querySelectorAll("a");
+    
+    // Loop through each link
+    links.forEach(link => {
+      const href = link.href;
+      
+      // Check if the href contains the 'coupon=' parameter
+      if (href.includes("&coupon=")) {
+        // Remove the 'coupon=' and its value
+        const updatedHref = href.replace(/&coupon=[^&]+/, "");
+        
+        // Update the href of the link
+        link.href = updatedHref;
+      }
+    });
+  }
+});
+
+	
+	</script><style>body.corporate.page-id-1608 .atb,body.corporate .wt-list,body.corporate .waitlist  {
+  display: none !important;
+}
+body.corporate .atb{
+  display:initial  !important
+}
+body.corporate .discount-1,body.corporate .discount-2, body.corporate .summer25, body.corporate .summer30, body.corporate .elementor-element-ad4d51e,body.corporate .elementor-element-6443307{display: none !important;}</style>
+	<script>
+ function displayPSTDateTime() {
+        // Get the current date and time
+        const now = new Date();
+        
+        // Define options to format date and time in PST
+        const options = { 
+            timeZone: 'America/Los_Angeles',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        };
+        
+        // Format the date and time
+        const pstDate = now.toLocaleDateString('en-US', { 
+            timeZone: 'America/Los_Angeles',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        const pstTime = now.toLocaleTimeString('en-US', { 
+            timeZone: 'America/Los_Angeles',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false 
+        });
+
+        // Combine date and time with "at"
+        const output = `${pstDate} ${pstTime}`;
+        
+        // Set the value to the input fields
+        const inputField1 = document.getElementById("form-field-dateTimeInput");
+        const inputField2 = document.getElementById("form-field-Date");
+
+        if (inputField1) {
+            inputField1.value = output;
+        }
+        if (inputField2) {
+            inputField2.value = output;
+        }
+    }
+
+    // Call the function initially
+    displayPSTDateTime();
+
+    // Update the time every second
+    setInterval(displayPSTDateTime, 1000);
+</script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    jQuery(document).ready(function($) {
+        let defaultCode = "+1";
+        let apiFailed = false;
+        let ipAddress = "";
+
+        // Fetch the IP and country code for each form
+        $(".countrycodeforms").each(function() {
+            let $form = $(this); // Reference to the current form
+            let countryCode = "";
+            let originalCountryCode = "";
+
+            async function fetchIPAndCountryCode() {
+                const primaryAPI = "https://ipapi.co/json/?key=wCEfiMg74HQZ6eaesgQonzezhhaiOLsMcCxMcPA1PCW5I1DpLr";
+                const fallbackAPI = "https://api.ipgeolocation.io/ipgeo?apiKey=ad5efde855914e27a6f5fce90e26cb27";
+
+                try {
+                    const data = await fetchIP(primaryAPI);
+                    handleIPData(data);
+                } catch (error) {
+                    console.warn("Primary API failed:", error);
+                    try {
+                        const data = await fetchIP(fallbackAPI);
+                        handleIPData(data, true);
+                    } catch (error) {
+                        console.error("Both APIs failed:", error);
+                        handleIPFailure();
+                    }
+                }
+            }
+
+            async function fetchIP(apiURL) {
+                const response = await axios.get(apiURL);
+                return response.data;
+            }
+
+            function handleIPData(data, isFallback = false) {
+                $form.find("#form-field-UserIP").val(data.ip);
+                ipAddress = data.ip;
+                const code = isFallback ? data.calling_code : data.country_calling_code;
+                setCountryCode(code, false);
+            }
+
+            function handleIPFailure() {
+                $form.find("#form-field-UserIP").val("Unable to fetch IP");
+                ipAddress = "Unable to fetch IP";
+                setCountryCode(defaultCode, true);
+            }
+
+            function setCountryCode(code, allowEdit) {
+                countryCode = code || defaultCode;
+                originalCountryCode = countryCode;
+                apiFailed = allowEdit;
+                $form.find("#form-field-fullnumber").val(originalCountryCode + " ");
+                $form.find("#form-field-number").val(originalCountryCode + " ");
+            }
+
+            $form.find("#form-field-fullnumber").on("input", function (e) {
+                let input = e.target;
+                input.value = input.value.replace(/[^0-9+ ]/g, "");
+                if (!input.value.startsWith(originalCountryCode + " ")) {
+                    let parts = input.value.split(" ");
+                    parts.shift();
+                    input.value = originalCountryCode + " " + parts.join("").trim();
+                }
+            });
+
+            $form.find("#form-field-fullnumber").on("keydown", function (e) {
+                if (!apiFailed && e.key === "Backspace" && e.target.selectionStart <= originalCountryCode.length + 1) {
+                    e.preventDefault();
+                }
+            });
+
+            $form.find("#form-field-number").on("input", function (e) {
+                let input = e.target;
+                input.value = input.value.replace(/[^0-9+ ]/g, "");
+                updateFullNumberInput();
+            });
+
+            function updateFullNumberInput() {
+                let numberValue = $form.find("#form-field-number").val();
+                let rawNumber = "";
+                if (numberValue.startsWith(originalCountryCode + " ")) {
+                    rawNumber = numberValue.substring(originalCountryCode.length + 1);
+                } else {
+                    rawNumber = numberValue;
+                }
+                $form.find("#form-field-fullnumber").val(originalCountryCode + " " + rawNumber);
+            }
+
+            fetchIPAndCountryCode();
+        });
+    });
+</script>
+
+
+
+    <?php wp_head(); ?>
+</head>
+<body <?php body_class(); ?>>
+
+<?php wp_body_open(); ?>
+
+<?php if ( $enable_skip_link ) { ?>
+<a class="skip-link screen-reader-text" href="<?php echo esc_url( $skip_link_url ); ?>"><?php echo esc_html__( 'Skip to content', 'hello-elementor' ); ?></a>
+<?php } ?>
+
+<?php
+if ( ! function_exists( 'elementor_theme_do_location' ) || ! elementor_theme_do_location( 'header' ) ) {
+    if ( did_action( 'elementor/loaded' ) && hello_header_footer_experiment_active() ) {
+        get_template_part( 'template-parts/dynamic-header' );
+    } else {
+        get_template_part( 'template-parts/header' );
+    }
+}

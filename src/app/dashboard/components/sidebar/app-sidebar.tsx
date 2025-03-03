@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { AudioWaveform, Command, Frame, GalleryVerticalEnd, Map, PieChart } from "lucide-react";
+import { AudioWaveform, Command, Frame, GalleryVerticalEnd, Map, MonitorCog, PieChart } from "lucide-react";
 
 import { TeamSwitcher } from "@/app/dashboard/components/sidebar/team-switcher";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
@@ -25,12 +25,12 @@ const teams = [
     plan: "Enterprise",
   },
   {
-    name: "Acme Corp.",
+    name: "OpenCV Corp.",
     logo: AudioWaveform,
     plan: "Startup",
   },
   {
-    name: "Evil Corp.",
+    name: "Bigvision Corp.",
     logo: Command,
     plan: "Free",
   },
@@ -39,7 +39,7 @@ const teams = [
 const projects = [
   {
     name: "Design Engineering",
-    url: "#",
+    url: "/dashboard/design-engineering",
     icon: Frame,
   },
   {
@@ -51,6 +51,11 @@ const projects = [
     name: "Travel",
     url: "#",
     icon: Map,
+  },
+  {
+    name: "Control Space",
+    url: "/dashboard/control-space",
+    icon: MonitorCog,
   },
 ];
 

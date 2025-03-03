@@ -49,7 +49,7 @@ export const sidebarItems: NavGroup[] = [
         icon: Receipt,
         subItems: [
           { title: "Manage Users", path: `${basePath}/manage-users` },
-          { title: "Manage Sheets", path: `${basePath}/manage-sheets` },
+          // { title: "Manage Sheets", path: `${basePath}/manage-sheets` },
           // { title: "Add", path: `${basePath}/invoice/add` },
           // { title: "Edit", path: `${basePath}/invoice/edit` },
         ],
@@ -60,7 +60,7 @@ export const sidebarItems: NavGroup[] = [
         icon: Activity,
         subItems: [
           { title: "Utm tracker", path: `${basePath}/utm-tracker` },
-          { title: "Source tracker", path: `${basePath}/utm-sources` },
+          // { title: "Source tracker", path: `${basePath}/utm-sources` },
           // { title: "Add", path: `${basePath}/invoice/add` },
           // { title: "Edit", path: `${basePath}/invoice/edit` },
         ],
@@ -71,7 +71,7 @@ export const sidebarItems: NavGroup[] = [
         icon: ScanSearch,
         subItems: [
           { title: "Webinar notifications", path: `${basePath}/webinar-notifications` },
-          { title: "Sms notifications", path: `${basePath}/invoice/view` },
+          // { title: "Sms notifications", path: `${basePath}/invoice/view` },
           // { title: "Add", path: `${basePath}/invoice/add` },
           // { title: "Edit", path: `${basePath}/invoice/edit` },
         ],

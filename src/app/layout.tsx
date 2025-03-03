@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -13,23 +13,25 @@ import StoreProvider from "@/redux/storeProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Studio Admin",
+  title: "OpenCV Kundali",
   description: "",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <AuthProvider>
-        <ToastProvider>
-          <StoreProvider>
-            <body className={`${inter.className} min-h-screen`}>
-              {children}
-              <Toaster />
-            </body>
-          </StoreProvider>
-        </ToastProvider>
-      </ AuthProvider>
+      <Suspense>
+        <AuthProvider>
+          <ToastProvider>
+            <StoreProvider>
+              <body className={`${inter.className} min-h-screen`}>
+                {children}
+                <Toaster />
+              </body>
+            </StoreProvider>
+          </ToastProvider>
+        </ AuthProvider>
+      </Suspense>
     </html>
   );
 }
